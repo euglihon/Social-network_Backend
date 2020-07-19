@@ -1,0 +1,18 @@
+# Optimized
+__pycache__/
+
+# Distribution / packaging
+venv/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+## Directory-based project format:
+.idea/
+
+# SQLite database
+db.sqlite3
