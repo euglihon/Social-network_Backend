@@ -1,8 +1,8 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from .forms import UserRegisterForm, UserEditProfile, ProfileEditProfile, UserEditPassword
 from .models import Profile
-from django.contrib.auth.models import User
 
 
 @login_required  # функция выполняется только авторизованным юзером
@@ -42,8 +42,12 @@ def edit_profile(request):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
+            # отправка сообщений для шаблона
+            messages.success(request, 'Profile updated successfully')
+        else:
+            messages.error(request, 'Error updating your profile')
 
-    # если форма не отправлна
+    # если форма не отправлена
     else:
         user_form = UserEditProfile(instance=request.user)
         profile_form = ProfileEditProfile(instance=request.user.profile)
@@ -63,7 +67,11 @@ def password_change(request):
             if instanse.check_password(password_form.cleaned_data['old_password']):
                 instanse.set_password(password_form.cleaned_data['new_password'])
                 instanse.save()
-                return render(request, 'account/dashboard.html')
+                messages.success(request, 'Password updated successfully')
+            else:
+                messages.warning(request, 'Check your old passport')
+        else:
+            messages.error(request, 'Error updating your password')
 
     else:
         password_form = UserEditPassword(instance=request.user)
