@@ -1,5 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from .forms import UserRegisterForm, UserEditProfile, ProfileEditProfile, UserEditPassword
+from .models import Profile
+from django.contrib.auth.models import User
 
 
 @login_required  # функция выполняется только авторизованным юзером
@@ -7,41 +10,62 @@ def dashboard(request):
     # загрузка главной страницы, если юзер залогинен
     return render(request, 'account/dashboard.html', {'section': 'dashboard'})
 
-'''
-ручная обработка логированрия
-def user_login(request):
-    if request.method == 'POST':
-        # если форма отправлена
-        form = LoginForm(request.POST)
 
-        if form.is_valid():
-            # если форма валидна
-            data = form.cleaned_data
-            user_name = data['username']
-            user_password = data['password']
-            # если такого юзера нет вернется user = None
-            user = authenticate(request, username=user_name, password=user_password)
+def register(request):
+    # Обработка регистрации пользователей
+    user_form = UserRegisterForm(request.POST)
+    if user_form.is_valid():
+        # Если форма валидна создаём нового пользователя но не отправляем в БД
+        new_user = user_form.save(commit=False)
+        # На базе получ. поля сетаем пароль юзеру
+        new_user.set_password(user_form.cleaned_data['password'])
+        # Отправляем юзера в БД
+        new_user.save()
+        # Создаём пустой расширенный профиль пользователя (для послед. ввода доп. данных)
+        Profile.objects.create(user=new_user)
 
-            if user is not None:
-                # если юзер аутентифицирован
-                if user.is_active:
-                    # если юзер активен
-                    # авторизируем юзера на сайте и сохр. в сессии
-                    login(request, user)
-                    return HttpResponse('Authenticated successfully')
-                elif not user.is_active:
-                    # если юзер не активен
-                    return HttpResponse('Disabled lol')
-
-            elif user is None:
-                # если юзер не аутентифицирован
-                return HttpResponse('Invalid login')
-        else:
-            # если форма не валидна
-            return render(request, 'account/login.html', {'form': form})
-
+        return render(request, 'account/register_done.html', {'new_user': new_user})
     else:
         # если форма не отправлена
-        form = LoginForm()
-        return render(request, 'account/login.html', {'form': form})
-'''
+        user_form = UserRegisterForm()
+    return render(request, 'account/register.html', {'user_form': user_form})
+
+
+# Обработка редактирования профиля пользователя
+@login_required
+def edit_profile(request):
+    # если форма отправлена
+    if request.method == 'POST':
+        user_form = UserEditProfile(instance=request.user, data=request.POST)
+        profile_form = ProfileEditProfile(instance=request.user.profile, data=request.POST, files=request.FILES)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+
+    # если форма не отправлна
+    else:
+        user_form = UserEditProfile(instance=request.user)
+        profile_form = ProfileEditProfile(instance=request.user.profile)
+
+    return render(request, 'account/edit_profile.html', {'user_form': user_form, 'profile_form': profile_form})
+
+
+# Обработка смены пароля
+@login_required
+def password_change(request):
+    if request.method == 'POST':
+        password_form = UserEditPassword(instance=request.user, data=request.POST)
+
+        if password_form.is_valid():
+            instanse = password_form.save(commit=False)
+            instanse.user = request.user
+            if instanse.check_password(password_form.cleaned_data['old_password']):
+                instanse.set_password(password_form.cleaned_data['new_password'])
+                instanse.save()
+                return render(request, 'account/dashboard.html')
+
+    else:
+        password_form = UserEditPassword(instance=request.user)
+
+    return render(request, 'account/edit_password.html', {'password_form': password_form})
