@@ -7,7 +7,8 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('account/', include('account.urls'))
+    path('account/', include('account.urls')),
+    path('social-auth/', include('social_django.urls', namespace='social')) # рег. через соц. сети
 ]
 
 

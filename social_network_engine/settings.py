@@ -25,7 +25,7 @@ SECRET_KEY = '54*n(km3x1(#&$(q2%oz0*&1$=!!%&5_pw*@!1@^4f&v!@(y8@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['mysite.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'social_django' # приложение логирования через соц.сети
 ]
 
 MIDDLEWARE = [
@@ -132,3 +133,15 @@ LOGIN_REDIRECT_URL = 'dashboard'
 # адреса для входа/ выхода
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
+
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # стандартный бекенд аутентификации
+    'account.authentication.EmailAuthBackend',   # дополнительный бекенд аутентификации (для проверки email)
+    'social_core.backends.facebook.FacebookOAuth2'  # дополнительный бекенд аутентификации (вход через facebook)
+]
+
+
+SOCIAL_AUTH_FACEBOOK_KEY = '2012648036709121'
+SOCIAL_AUTH_FACEBOOK_SECRET = '50868c408f67d92e8d804c24fd3680dd4'
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email'] # данные которые будем получать у пользователей Facebook
