@@ -25,7 +25,13 @@ SECRET_KEY = '54*n(km3x1(#&$(q2%oz0*&1$=!!%&5_pw*@!1@^4f&v!@(y8@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['mysite.com', 'localhost', '127.0.0.1']
+
+ALLOWED_HOSTS = [
+    'mysite.com',
+    'localhost',
+    '127.0.0.1',
+    '33b6305aefb0.ngrok.io' # ngrok транслятор
+]
 
 
 # Application definition

@@ -6,7 +6,20 @@
 
 {% block content %}
     <h1>Dashboard</h1>
-    <p>Welcome to you dashboard</p>
+
+    {% with total_images_created=request.user.images_created.count %}
+        <p>
+            Welcome to you dashboard
+            {{ total_images_created }} images
+        </p>
+    {% endwith %}
+
+    <p>
+        Drag the following button to your bookmarks toolbar to bookmark images from other website
+        <a href="javascript:{% include 'bokmarklet_lanch.js' %}" class="button">Bookmark it</a>
+    </p>
+
+    
     <p>You can
         <a href="{% url 'edit_profile' %}">edit your profile</a>
         or
